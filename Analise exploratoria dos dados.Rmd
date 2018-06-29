@@ -1,0 +1,155 @@
+---
+title: "Analisa Exploratoria dos Dados"
+output: html_document
+---
+
+## Carregando as LIBS
+
+```{r, results= 'hide', warning=FALSE,message=FALSE}
+library(ggplot2)
+library(gridExtra)
+```
+
+## Preparacao dos dados
+
+```{r cars}
+data("Titanic")
+tit<-Titanic
+tit_df<-as.data.frame(tit)
+```
+
+## Exploracao inicial dos dados
+
+```{r}
+str(tit_df)
+summary(tit_df)
+head(tit_df,3)
+tail(tit_df,3)
+```
+
+
+## Analise dos dados
+
+```{r pressure, echo=FALSE}
+plot(tit, main = "Survival on the Titanic")
+```
+
+## Distribuicao dos Passageiros por Sexo
+
+```{r, echo=FALSE}
+t1 <- ggplot(tit_df, 
+             aes(x= Sex, y= Freq))+ 
+  geom_bar(stat = 'identity', width = 0.4) + ggtitle("Distribuicao por Sexo")
+t1
+```
+
+## Distribuicao dos Passageiros por Classe
+
+```{r, echo=FALSE}
+t2 <- ggplot(tit_df, 
+       aes(x= Class, y= Freq))+ 
+  geom_bar(stat = 'identity', width = 0.8) + ggtitle("Distribucao por Classe")
+t2
+```
+
+## Distribuicao dos Passageiros por Idade
+
+```{r, echo=FALSE}
+t3 <- ggplot(tit_df, 
+       aes(x= Age, y= Freq))+ 
+  geom_bar(stat = 'identity', width = 0.4) + ggtitle("Distribuicao por Idade")
+t3
+```
+
+## Distribuicao dos Passageiros por Sobreviventes
+
+```{r, echo=FALSE}
+t4 <- ggplot(tit_df, 
+       aes(x= Survived, y= Freq))+ 
+  geom_bar(stat = 'identity', width = 0.4) + ggtitle("Distribuicao por Sobreviventes")
+t4
+```
+
+## Agrupamento dos graficos
+
+Para facilitar a observacao, os graficos foram agrupados abaixo.
+
+```{r}
+grid.arrange(t1,t2,t3,t4)
+```
+
+##Sobreviventes por Classe
+
+```{r}
+tit_survive <- subset(tit_df, Survived == 'Yes')
+p1 <- ggplot(tit_survive, 
+       aes(x= Class, y= Freq))
+p1 <- p1 + geom_bar(stat = 'identity', width = 0.4) + ggtitle("Sobreviventes por Classe")
+p1
+```
+
+#Sobreviventes por Idade
+
+```{r}
+p2 <- ggplot(tit_survive, 
+             aes(x= Age, y= Freq))
+p2 <- p2 + geom_bar(stat = 'identity', width = 0.2) + ggtitle("Sobreviventes por Idade")
+p2
+```
+
+#Sobreviventes por Sexo
+
+```{r}
+p3 <- ggplot(tit_survive, 
+             aes(x= Sex, y= Freq))
+p3 <- p3 + geom_bar(stat = 'identity', width = 0.2) + ggtitle("Sobreviventes por Sexo")
+p3
+```
+
+## Agrupamento dos gr??ficos parte 2
+
+```{r}
+grid.arrange(p1, p2, p3)
+```
+
+#Sobreviventes por Classe por Idade
+
+```{r}
+g1<- ggplot(tit_survive, 
+             aes(x= Class, y= Freq))+ 
+  geom_bar(aes(fill = Age), stat = 'identity', width = 0.4) + ggtitle("Sobreviventes por Classe por Idade")
+g1
+```
+
+#Sobreviventes por Classe por Sexo
+
+```{r}
+g2 <- ggplot(tit_survive, 
+       aes(x= Class, y= Freq))+ 
+  geom_bar(aes(fill = Sex), stat = 'identity', width = 0.4) + ggtitle("Sobreviventes por Classe por Sexo")
+g2
+```
+
+## Agrupamento dos graficos parte 3
+
+```{r}
+grid.arrange(g1,g2)
+```
+
+#Idade x sobreviver
+
+```{r}
+ggplot(tit_df, 
+       aes(x= Survived, y= Freq))+ 
+  geom_bar(aes(fill = Age), stat = 'identity', width = 0.4) + ggtitle("Idade x Sobreviver")
+```
+
+#Sexo x sobreviver
+
+```{r}
+ggplot(tit_df, 
+       aes(x= Survived, y= Freq))+ 
+  geom_bar(aes(fill = Sex), stat = 'identity', width = 0.4) + ggtitle("Sexo x Sobreviver")
+```
+
+

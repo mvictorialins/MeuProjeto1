@@ -1,0 +1,78 @@
+---
+title: "Previsao LW Random Forest"
+output: html_document
+---
+
+## Carregamento das Libs e dos dados
+```{r, results= 'hide', warning=FALSE,message=FALSE}
+library(rpart)
+library(rpart.plot)
+library(RColorBrewer)
+library(Amelia)
+library(randomForest)
+
+setwd("/Users/mariavictorialins/Desktop/Estudos/UFSC/18.1/Machine Learning/EPSMLRepo-master/Data")
+
+df <- read.csv('birthwt.csv', stringsAsFactors = FALSE)
+```
+
+## Analise Inicial dos dados
+
+```{r}
+str(df)
+hist(df$bwt)
+```
+
+Convertendo as variaveis categoricas para fatores
+```{r}
+cols <- c('low', 'race', 'smoke', 'ht', 'ui')
+df[cols] <- lapply(df[cols], as.factor)
+```
+
+```{r}
+summary(df)
+```
+
+Agora, eh preciso avaliar os dados quanto aos valores vazios.
+
+```{r}
+missmap(df,main = "Vazios versus Observados")
+```
+
+Portanto, nao ha valores vazios em nossa base de dados.
+
+## Construcao do modelo
+
+Separando os dados em dados de treinamento e dados de teste:
+
+```{r}
+set.seed(123)
+
+train.index <- sample((nrow(df)),0.7*nrow(df))
+
+train <- df[train.index,]
+test  <- df[-train.index,]
+```
+
+Contrucao da "forest" com 2000 arvores
+```{r}
+rforest <- randomForest(low ~ race + smoke + ht + ui + age + ptl + ftv +lwt, data = train, importance = TRUE, ntree = 2000)
+summary(rforest)
+```
+
+Avaliar a importancia de cada variavel para o modelo. As variaveis com o maior "score" sao as que influenciam mais o modelo.
+```{r}
+varImpPlot(rforest)
+```
+
+## Predicao
+
+Utilizacao do modelo Random Forest para fazer a predicao de recem nascidos considerados Low Weight
+```{r}
+predictionrforest <- predict(rforest, test, type="class")
+table(predictionrforest, test$low)
+
+prop.table(table(predictionrforest,test$low))
+```
+
+Portanto, a acuracidade obtida atraves da utilizacao deste modelo foi de aproximadamente 61%

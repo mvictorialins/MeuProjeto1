@@ -1,0 +1,94 @@
+---
+title: "BlueSky Feriados"
+output: html_document
+---
+
+## Carregamento das Libraries
+```{r, results= 'hide', warning=FALSE,message=FALSE}
+library(tidyverse)
+library(readxl)
+```
+
+## Carregamento e preparacao dos dados
+
+```{r, results= 'hide', warning=FALSE,message=FALSE}
+setwd("/Users/mariavictorialins/Desktop/Estudos/UFSC/18.1/Machine Learning/EPSMLRepo-master/Data")
+
+df <- read_xls('BlueSky_Single-Leg_demand.xls', col_types = c("date","numeric"))
+
+df <- df[c(6:369), ]
+
+colnames(df)[1] <- "data"
+colnames(df)[2] <- "demanda"
+
+df$month <- months(df$data)
+df$month <- as.factor(df$month)
+
+df$day <- weekdays(df$data)
+df$day <- as.factor(df$day)
+```
+
+Exploracao inicial dos dados:
+```{r}
+summary(df)
+str(df)
+```
+
+Criar uma coluna para colocar a informacao de feriados
+```{r}
+df$feriado <- c(0:0)
+```
+
+Informar as datas dos feriados do per??odo abrangido pelos dados adicionando 1 na coluna criada
+```{r}
+#Sexta-feira Santa
+df[41, 5] = 1
+#Pascoa
+df[43, 5] = 1
+#Tiradentes
+df[48, 5] = 1
+#Dia do trabalho
+df[58, 5] = 1
+#Corpus Christi
+df[103, 5] = 1
+#Independencia
+df[187, 5] = 1
+#Dia das criancas
+df[222, 5] = 1
+#Finados
+df[243, 5] = 1
+#Proclama????o da rep
+df[256, 5] = 1
+#Natal
+df[296, 5] = 1
+#Ano Novo
+df[303, 5] = 1
+
+df$feriado <- as.factor(df$feriado)
+```
+
+## A regress??o
+
+Regressao multipla
+```{r}
+regressao <- lm(data = df, demanda ~ day + month + feriado)
+summary(regressao)
+```
+
+Plotando os res??duos para an??lise
+```{r}
+plot(regressao)
+```
+
+Plotando os valores previstos
+```{r}
+prediction <- predict(regressao,newdata = df )
+
+g <- ggplot(df, aes(x = data,y = demanda)) +
+  geom_point() +
+  geom_line()
+g
+
+g1 <- g + geom_line(aes(x = df$data, y = prediction), color = "red")
+g1
+```

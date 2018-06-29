@@ -1,0 +1,66 @@
+---
+title: "Vinho KNN"
+output: html_document
+---
+
+## Carregamento das Libs e dos dados
+```{r, results= 'hide', warning=FALSE,message=FALSE}
+library(ggplot2)
+library(caret)
+
+load('/Users/mariavictorialins/Desktop/Estudos/UFSC/18.1/Machine Learning/wine_data.Rdata')
+
+df <- wine_df
+head(df)
+```
+
+## Analise Inicial dos dados
+
+```{r}
+str(df)
+summary(df)
+```
+
+## Construcao do modelo
+
+Separando os dados em dados de treinamento e dados de teste:
+
+```{r}
+set.seed(300)
+indiceTrain <- createDataPartition(y = df$V1,p = 0.75,list = FALSE)
+training <- df[indiceTrain,]
+testing <- df[-indiceTrain,]
+
+df$grupo = "Treinamento"
+df$grupo[-indiceTrain]= "Teste" 
+```
+
+Visualizacao dos dados de treinamento e dos dados de teste
+```{r}
+m <- ggplot(data = df, aes(x = V1,fill = grupo)) 
+m + geom_density(alpha=0.4)
+```
+
+Normalizacao dos dados e exclusao de V1:
+```{r}
+trainX <- training[,names(training) != "V1"]
+preProcValues <- preProcess(x = trainX, method = c("center", "scale"))
+preProcValues
+```
+
+KNN:
+```{r}
+set.seed(400)
+ctrl <- trainControl(method = "repeatedcv", repeats = 3) 
+
+gridK <- expand.grid( k = c(3:5) )
+
+knnFit <- train(V1 ~ V2 + V3 + V4 + V5 + V6 + V7 + V8 + V9 + V10 + V11 + V12 + V13 + V14,
+                data = training, method = "knn", 
+                trControl = ctrl, 
+                preProcess = c("center","scale"),
+                #Definindo a faixa de parametros a ser usada
+                tuneLength = 30 )
+
+knnFit
+```

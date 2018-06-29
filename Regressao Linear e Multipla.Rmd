@@ -1,0 +1,58 @@
+---
+title: "Regressao Linear e Multipla"
+output: html_document
+---
+
+## Carregamento das Libraries
+```{r, results= 'hide', warning=FALSE,message=FALSE}
+library(readxl)
+library(ggplot2)
+```
+
+## Carregamento e preparacao dos dados
+
+```{r}
+setwd("/Users/mariavictorialins/Desktop/Estudos/UFSC/18.1/Machine Learning")
+
+df <- read_xlsx('housingSmall.xlsx')
+
+df <- df[c(2:5)]
+df <- df[c(2:15), ]
+```
+
+Renomeando as colunas para as variaveis do banco de dados e ajuste da formata????o dos dados
+```{r}
+colnames(df)[1] <- 'Area'
+colnames(df)[3] <- 'Quartos'
+colnames(df)[2] <- 'Garagem'
+colnames(df)[4] <- 'Preco'
+
+df$Area <- as.numeric(df$Area)
+df$Preco <- as.numeric(df$Preco)
+df$Garagem <- as.numeric(df$Garagem)
+df$Quartos <- as.numeric(df$Quartos)
+```
+
+## Regressao Linear
+
+```{r}
+LinearMod <- lm(Preco ~ Area, data=df) 
+summary(LinearMod)
+```
+
+
+Plotando a regressao linear, obtemos o grafico abaixo:
+
+```{r pressure, echo=FALSE}
+ggplot(data = df, aes(x = Area, y = Preco)) + 
+  geom_point(color='blue') +
+  geom_smooth(method = "lm", se = FALSE,color='red')
+```
+
+## Regressao Linear Multipla
+
+```{r}
+LinearMult <- lm(Preco ~ Area + Garagem + Quartos, data = df)
+summary(LinearMult)
+```
+
